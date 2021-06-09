@@ -1,0 +1,41 @@
+{
+  "name": "nrc",
+  "version": "1.0.0",
+  "description": "Node.js Runtime Console",
+  "author": "Wes Garland <wes@kingsds.network>",
+  "license": "MIT",
+  "main": "nrc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "homepage": "https://github.com/wesgarland/nrc",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/wesgarland/nrc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wesgarland/nrc/issues"
+  },
+  "files": [
+    "*.js",
+    "lib",
+    "etc"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "directories": {
+    "example": "examples",
+    "lib": "lib",
+    "test": "test"
+  },
+  "keywords": [
+    "debug",
+    "console",
+    "telnet",
+    "introspection"
+  ],
+  "dependencies": {
+    "telnet": "git+https://github.com/TooTallNate/node-telnet.git#780340617e1f223de384cdfcb7cecf0a1a6f1159"
+  }
+}
