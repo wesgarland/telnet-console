@@ -7,7 +7,7 @@
  */
 const nrc = require('../nrc');
 
-setInterval(() => console.log('something happened at', new Date()), 1000);
+setInterval(() => console.log(`something ${Math.random().toString(36).slice(2).slice(-5)} happened at`, new Date()), 3000);
 
 var hnd = nrc.start({
   port: 2323
@@ -15,3 +15,6 @@ var hnd = nrc.start({
 
 var ci = new nrc.ConsoleInterceptor();
 ci.on('', () => { debugger; console.log('world')});
+
+process.on('uncaughtException', (error) => console.error('UNCAUGHT EXCEPTION:', error));
+process.on('unhandledRejection', (error) => console.error('UNHANDLED REJECTION:', error));
