@@ -23,6 +23,5 @@ We recommend only enabling nrc under controlled debugging conditions.
 
 ### Related Products
 * [`niim`](https://www.npmjs.com/package/niim) - a command-line debugger for Node.js 
-  (fork of node-inspect) which can debug DCP programs (passphrase prompts cause problems
-  with node-inspect mainline)
-
+  (fork of node-inspect) which can debug programs that need stdin connected to a 
+  terminal (eg REPLs).

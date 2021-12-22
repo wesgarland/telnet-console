@@ -1,6 +1,6 @@
 {
   "name": "nrc",
-  "version": "1.0.0",
+  "version": "1.0.0-a",
   "description": "Node.js Runtime Console",
   "author": "Wes Garland <wes@kingsds.network>",
   "license": "MIT",
