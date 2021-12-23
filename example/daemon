@@ -6,10 +6,13 @@
  * @date        Jun 2021
  */
 const nrc = require('../nrc');
+const intervalHnd = setInterval(() => console.log(`${Math.random().toString(36).slice(2).slice(-5)} happened at`, new Date()), 5000);
 
-setInterval(() => console.log(`something ${Math.random().toString(36).slice(2).slice(-5)} happened at`, new Date()), 3000);
+const options = {
+  callbackTelnet: (port, server, registry) => process.stderr.write(`telnetd for example/daemon listening on port ${port}\n`),
+};
 
-var hnd = nrc.start();
+var hnd = nrc.start(options);
 
 process.on('uncaughtException', (error) => console.error('UNCAUGHT EXCEPTION:', error));
 process.on('unhandledRejection', (error) => console.error('UNHANDLED REJECTION:', error));
