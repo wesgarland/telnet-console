@@ -31,6 +31,15 @@ require('telnet-console').start();
 | histfile        |         | filename to REPL history into; understands ~, falsey to disable
 | stdio           | false   | if not false, start a REPL on stdio also
 | eval            |         | evaluator function to use with REPL. Use to get specific scope instead of global.
+| logOff          |         | true to not display log messages by default
+| bufferLines     | 1000    | number of log lines to keep in memory for log command
+
+### Commands
+* *help* - see help
+* *log on* - console messages show in telnet client
+* *log off* - console messages don't show in telnet client
+* *log N* - show the last N messages in the telnet client
+* *log* - show entire log
 
 Note: all standard Node REPL options are also supported. See [NodeJS docs](https://nodejs.org/api/repl.html).
  
