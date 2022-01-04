@@ -1,18 +1,18 @@
 #! /usr/bin/env node
 /**
  * @file        daemon.js
- *              An example daemon which shows to use and test nrc
+ *              An example daemon which shows to use and test telnet-console
  * @author      Wes Garland, wes@kingsds.network
  * @date        Jun 2021
  */
-const nrc = require('../nrc');
+const tc = require('../telnet-console');
 const intervalHnd = setInterval(() => console.log(`${Math.random().toString(36).slice(2).slice(-5)} happened at`, new Date()), 5000);
 
 const options = {
   callbackTelnet: (port, server, registry) => process.stderr.write(`telnetd for example/daemon listening on port ${port}\n`),
 };
 
-var hnd = nrc.start(options);
+var hnd = tc.start(options);
 
 process.on('uncaughtException', (error) => console.error('UNCAUGHT EXCEPTION:', error));
 process.on('unhandledRejection', (error) => console.error('UNHANDLED REJECTION:', error));

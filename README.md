@@ -1,4 +1,4 @@
-# nrc - Node Runtime Console
+# Telnet Console for NodeJS
 
 A library for implementing runtime consoles in Node applications. This library allows you to 
 trivially build a telnet daemon for your application that can buffer/intercept console log
@@ -13,10 +13,29 @@ Additionally, making the REPL available allows anyone who can connect to it to d
 at all with the same privileges as your application -- so even if you are limiting connections
 to localhost, you must also trust every single user on your machine.
 
-We recommend only enabling nrc under controlled debugging conditions.
+We recommend only enabling a telnet console under controlled debugging conditions.
 
+## How To Use
+### tldr;
+require('telnet-console').start();
+
+### API
+*start(options)*: Start the daemon with the given options object
+
+#### options
+| option          | default | details
+|:----------------|:--------|:-------------------------------------------------------------------------------------
+| port            | 2323    | port number to listen on; false to disable
+| callbackTelnet  |         | callback to invoke when telnet daemon has started; receives (port, server, registry).
+| callbackStdio   |         | callback to invoke when stdio repl has started
+| histfile        |         | filename to REPL history into; understands ~, falsey to disable
+| stdio           | false   | if not false, start a REPL on stdio also
+| eval            |         | evaluator function to use with REPL. Use to get specific scope instead of global.
+
+Note: all standard Node REPL options are also supported. See [NodeJS docs](https://nodejs.org/api/repl.html).
+ 
 ## Release Notes
-* Unreleased
+* Jan 4 2021: Initial Release
 
 ### Supported Platforms
 * Everything

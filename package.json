@@ -1,20 +1,20 @@
 {
-  "name": "nrc",
+  "name": "telnet-console",
   "version": "1.0.1-a",
   "description": "Node.js Runtime Console",
   "author": "Wes Garland <wes@kingsds.network>",
   "license": "MIT",
-  "main": "nrc.js",
+  "main": "telnet-console.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "homepage": "https://github.com/wesgarland/nrc",
+  "homepage": "https://github.com/wesgarland/telnet-console",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/wesgarland/nrc.git"
+    "url": "git+ssh://git@github.com/wesgarland/telnet-console.git"
   },
   "bugs": {
-    "url": "https://github.com/wesgarland/nrc/issues"
+    "url": "https://github.com/wesgarland/telnet-console/issues"
   },
   "files": [
     "*.js",
