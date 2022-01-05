@@ -22,11 +22,12 @@ We recommend only enabling a telnet console under controlled debugging condition
 require('telnet-console').start();
 ````
 *shell command*: 
-```telnet localhost 2323
+```sh
+telnet localhost 2323
 ```
 
 ### API
-*start(options, ...replHelpers)*: Start the daemon with the given options object
+**start(options, ...replHelpers)**: Start the daemon with the given options object, returning an instance of ConsoleInterceptor
 
 #### options
 | option          | default | details
@@ -55,22 +56,24 @@ Each function should return undefined, which is ignored, or an object or string 
 remote user.  Using the `client` output stream is possible, but discouraged. If it is used, it is very important to
 send \r\n instead of \n, and all output must end with \r\n to avoid corrupting the REPL.
 
+**ConsoleIntercetor::reintercept()**: re-establish console.log (etc) interception if some other library intercepted it.
+
 ### Commands
-* *help* - online help
-* *log on* - console messages show in telnet client (default)
-* *log off* - console messages don't show in telnet client
-* *log N* - show the last N messages in the telnet client
-* *log* - show entire log
-* *last* - last result evaluated (also variable `_`)
-* *keys* - show Object.keys of argument
-* *uptime* - show system uptime, load average
-* *ifconfig* - show network interfaces
-* *whoami* - show os-level info about running process
-* *who* - show who is conneted to this process
-* *wall* - write a message to all connected users
-* *stat* - show os-level statitics about running process
-* *raise* - send a signal to this process
-* *flush* - flush a module from the require cache (potentially very dangerous!!!)
+* **help** - online help
+* **log on** - console messages show in telnet client (default)
+* **log off** - console messages don't show in telnet client
+* **log N** - show the last N messages in the telnet client
+* **log** - show entire log (up to `options.bufferLines` lines)
+* **last** - last result evaluated (also variable `_`)
+* **keys** - show Object.keys of argument
+* **uptime** - show system uptime, load average
+* **ifconfig** - show network interfaces
+* **whoami** - show os-level info about running process
+* **who** - show who is conneted to this process
+* **wall** - write a message to all connected users
+* **stat** - show os-level statitics about running process
+* **raise** - send a signal to this process
+* **flush** - flush a module from the require cache (potentially very dangerous!!!)
 
 ### Debugging Tips
 #### keep
