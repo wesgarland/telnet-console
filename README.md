@@ -6,8 +6,9 @@ messages and connect a REPL within a given execution context (usually the main p
 
 ## Security Notes - IMPORTANT!!!
 
-Telnet is unencrypted and unauthenticated. You should not expose it to the internet, or any
-other network where you do not trust 100% of the hosts.
+Telnet is unencrypted and unauthenticated by default. You should not expose it to the internet, 
+or any other network where you do not trust 100% of the hosts. Anything typed, including authentication
+credentials, can be seen by sniffing the network traffic.
 
 Additionally, making the REPL available allows anyone who can connect to it to do anything
 at all with the same privileges as your application -- so even if you are limiting connections
@@ -40,6 +41,7 @@ telnet localhost 2323
 | eval            |         | evaluator function to use with REPL. Use to get specific scope instead of global.
 | logOff          |         | true to not display log messages by default
 | bufferLines     | 1000    | number of log lines to keep in memory for log command
+| users           |         | a function which returns true for a valid login/password pair, or an object whose keys are logins and values are passwords
 
 *Note:* all standard Node REPL options are also supported. See [NodeJS docs](https://nodejs.org/api/repl.html).
 
