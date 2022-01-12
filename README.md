@@ -27,6 +27,8 @@ require('telnet-console').start();
 telnet localhost 2323
 ```
 
+More info in `examples/` directory; use the source, Luke!
+
 ### API
 **start(options, ...replHelpers)**: Start the daemon with the given options object, returning an instance of ConsoleInterceptor
 
