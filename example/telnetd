@@ -118,13 +118,12 @@ async function shell(arg, client, options)
   client.logOff = true;
   try
   {
-    inputStream._events.keypress = [];
-    inputStream._events.data = [];
-    inputStream.input._events.data = [];
-    inputStream.on('data', (ev) => console.log('DATA:', ev));
-    inputStream.on('keypress', (ev) => console.log('KP:', ev));
-    inputStream.input.on('data', (ev) => console.log('1DATA:', ev));
-    inputStream.input.on('keypress', (ev) => console.log('1KP:', ev));
+    let eventsBackup = {
+      data:     inputStream.listeners('data'),
+      keypress: inputStream.listeners('keypress'),
+    }
+
+    client.write(`*** Spawning ${cmd} ${args.map((arg) => !/\s/.test(arg) ? arg : '"' + arg.replace('"', '\\"') + '"').join(' ')}\r\n\r\n`);
 
     child = pty.spawn(cmd, args, {
       name: env.TERM,
@@ -134,25 +133,34 @@ async function shell(arg, client, options)
       env: env,
     });
 
-    client.write(`*** Spawning ${cmd} ${args.map((arg) => !/\s/.test(arg) ? arg : '"' + arg.replace('"', '\\"') + '"').join(' ')}\r\n\r\n`);
-
+    inputStream.removeAllListeners('data');
+    inputStream.removeAllListeners('keypress');
+    inputStream.input.on('data', function handleClientData(data) {
+      child.write(data);
+    });
     child.on('data', function handleChildData(data) {
       client.write(data);
     });
 
-    inputStream.input.on('data', function handleClientData(data) {
-      child.write(data);
-    });
-
     return new Promise((resolve, reject) => {
-      function finish(callback)
+      function finish(error)
       {
+        const callback = error ? reject : resolve;
+        
+        if (eventsBackup)
+        {
+          eventsBackup.data    .forEach(fun => inputStream.on('data',     fun));
+          eventsBackup.keypress.forEach(fun => inputStream.on('keypress', fun));
+          eventsBackup = false;
+        }
         client.logOff = initialLogOff;
-        callback();
+        resolve = reject = false;
+        if (callback)
+          callback();
       }
       
-      child.on('error', () => finish(reject));
-      child.on('close', () => finish(resolve));
+      child.on('error', (error) => finish(error));
+      child.on('close', ()      => finish());
     });
   }
   catch(error)
@@ -164,9 +172,9 @@ async function shell(arg, client, options)
 
 const options = {
   callbackTelnet: (port, server, registry) => process.stderr.write(`telnetd for example/daemon listening on port ${port}\n`),
-//  users: {
-//    scott: 'tiger'
-//  },
+  users: {
+    scott: 'tiger'
+  },
 };
 
 const commands = {
