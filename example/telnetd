@@ -1,0 +1,175 @@
+#! /usr/bin/env node
+/**
+ * @file        daemon.js
+ *              An example daemon which shows to use and test telnet-console. Same as daemon example,
+ *              but adds a login check for user scott, password tiger.
+ *
+ * @author      Wes Garland, wes@kingsds.network
+ * @date        Jun 2021
+ */
+const tc = require('../telnet-console');
+const intervalHnd = setInterval(() => console.log(`${Math.random().toString(36).slice(2).slice(-5)} happened at`, new Date()), 5000);
+const childProcess = require('child_process');
+                           
+/** 
+ * Parse a line into tokens, similar to the Bourne shell's `set` command. 
+ * The following syntax is supported:
+ * - backslash to escape - supported escape are double quote, space, single quote
+ * - space as the token separator (IFS)
+ * - double quotes to quote token groups that can contain escapes
+ * - single quotes to quote token groups that cannot contain escapes
+ * - empty tokens are ignored
+ *
+ * @param    {string}  inBuf           The string to parse or falsey
+ * @returns  {array} array of parsed tokens
+ */
+function tokenize(inBuf)
+{
+  var outBuf = '';
+  var outBufs = [];
+  var inSQSection = false; 
+  var inDQSection = false;
+  var escape = false;
+
+  if (!inBuf)
+    return outBufs;
+
+  for (i=0; i < inBuf.length; i++)
+  {
+    escape = false;
+    if (!inSQSection && inBuf[i] === '\\')
+    {
+      switch(inBuf[i + 1])
+      {
+        case '"': case ' ': case "'":
+          escape = true;
+          i++;
+          break;
+      }
+    }
+
+    if (!inDQSection && !inSQSection && !escape && inBuf[i] === ' ')
+    {
+      if (outBuf.length)
+        outBufs.push(outBuf);
+      outBuf = '';
+      continue;
+    }
+
+    if (!escape && !inSQSection && inBuf[i] === '"')
+    {
+      inDQSection = !inDQSection;
+      continue;
+    }
+    
+    if (!escape && !inDQSection && inBuf[i] === "'")
+    {
+      inSQSection = !inSQSection;
+      continue;
+    }
+
+    outBuf += inBuf[i];
+  }
+
+  if (outBuf)
+    outBufs.push(outBuf);
+
+  return outBufs;
+}
+
+async function shell(arg, client, options)
+{
+  var initialLogOff = client.logOff;
+  var { inputStream, outputStream } = client.repl;
+  var cmd, args;
+  var pipeMode = parseInt(process.versions.node, 10) < 14 ? 'pipe' : 'overlapped';
+  var child;
+  var error;
+  var env = Object.assign({}, process.env);
+
+  env.LINES   = client.rows;
+  env.COLUMNS = client.columns;
+  env.__IN_TELNETD='true';
+  env.TERM = client.terminal || 'vt100';
+  
+  if (!arg.trim().length)
+  {
+    /* default: interactive shell */
+    cmd = process.env.SHELL || '/bin/sh';
+    args = [ '-i', '-l' ];
+  }
+  else
+  {
+    let argv = tokenize(arg);
+    args = argv.slice(1);
+    cmd = argv[0];
+  }
+
+  client.logOff = true;
+  try
+  {
+    inputStream._events.keypress = [];
+    inputStream._events.data = [];
+    inputStream.input._events.data = [];
+    inputStream.on('data', (ev) => console.log('DATA:', ev));
+    inputStream.on('keypress', (ev) => console.log('KP:', ev));
+    inputStream.input.on('data', (ev) => console.log('1DATA:', ev));
+    inputStream.input.on('keypress', (ev) => console.log('1KP:', ev));
+    child = childProcess.spawn(cmd, args, {
+      env,
+      stdio: [ pipeMode, pipeMode, pipeMode ],
+      detached: true,
+    });
+    if (child instanceof Error)
+      throw error;
+    
+    child.stdout.pipe(outputStream, { end: false });
+    child.stderr.pipe(outputStream, { end: false });
+    inputStream.input.pipe(child.stdin);
+    inputStream.input.on('data', function oob(ev) {
+      if (ev.indexOf(0x03) !== -1) /* CAN */
+        child.kill('SIGINT');
+      if (ev.indexOf(0x04) !== -1) /* EOF */
+        child.stdin.destroy();
+      if (ev.indexOf(0x1d) !== -1) /* telnet escape */
+        child.kill('SIGTERM');
+    });
+    
+    return new Promise((resolve, reject) => {
+      function finish(callback)
+      {
+        inputStream.input.unpipe(child.stdin);
+        client.logOff = initialLogOff;
+        callback();
+      }
+      
+      child.on('error', () => finish(reject));
+      child.on('close', () => finish(resolve));
+    });
+  }
+  catch(error)
+  {
+    client.logOff = initialLogOff;
+    return `Error spawning ${cmd}: ${error.message}`;
+  }
+}
+
+const options = {
+  callbackTelnet: (port, server, registry) => process.stderr.write(`telnetd for example/daemon listening on port ${port}\n`),
+  users: {
+    scott: 'tiger'
+  },
+};
+
+const commands = {
+  shell: shell
+};
+
+const help = {
+  shell: 'run a process or drop to an OS shell'
+};
+
+var hnd = tc.start(options, { commands, help });
+
+process.on('uncaughtException', (error) => console.error('UNCAUGHT EXCEPTION:', error));
+process.on('unhandledRejection', (error) => console.error('UNHANDLED REJECTION:', error));
