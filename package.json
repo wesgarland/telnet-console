@@ -36,6 +36,7 @@
     "introspection"
   ],
   "dependencies": {
+    "node-pty": "^0.10.1",
     "telnet": "git+https://github.com/TooTallNate/node-telnet.git#780340617e1f223de384cdfcb7cecf0a1a6f1159"
   }
 }

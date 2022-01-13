@@ -7,6 +7,8 @@
  * @author      Wes Garland, wes@kingsds.network
  * @date        Jun 2021
  */
+const os = require('os');
+const pty = require('node-pty');
 const tc = require('../telnet-console');
 const intervalHnd = setInterval(() => console.log(`${Math.random().toString(36).slice(2).slice(-5)} happened at`, new Date()), 5000);
 const childProcess = require('child_process');
@@ -95,8 +97,16 @@ async function shell(arg, client, options)
   if (!arg.trim().length)
   {
     /* default: interactive shell */
-    cmd = process.env.SHELL || '/bin/sh';
-    args = [ '-i', '-l' ];
+    if (os.platform() === 'win32')
+    {
+      cmd = 'powershell.exe';
+      args = [];
+    }
+    else
+    {
+      cmd = process.env.SHELL || '/bin/sh';
+      args = [ '-i', '-l' ];
+    }
   }
   else
   {
@@ -115,30 +125,28 @@ async function shell(arg, client, options)
     inputStream.on('keypress', (ev) => console.log('KP:', ev));
     inputStream.input.on('data', (ev) => console.log('1DATA:', ev));
     inputStream.input.on('keypress', (ev) => console.log('1KP:', ev));
-    child = childProcess.spawn(cmd, args, {
-      env,
-      stdio: [ pipeMode, pipeMode, pipeMode ],
-      detached: true,
+
+    child = pty.spawn(cmd, args, {
+      name: env.TERM,
+      cols: client.columns || 80,
+      rows: client.rows    || 25,
+      cwd: process.env.HOME || process.cwd(),
+      env: env,
     });
-    if (child instanceof Error)
-      throw error;
-    
-    child.stdout.pipe(outputStream, { end: false });
-    child.stderr.pipe(outputStream, { end: false });
-    inputStream.input.pipe(child.stdin);
-    inputStream.input.on('data', function oob(ev) {
-      if (ev.indexOf(0x03) !== -1) /* CAN */
-        child.kill('SIGINT');
-      if (ev.indexOf(0x04) !== -1) /* EOF */
-        child.stdin.destroy();
-      if (ev.indexOf(0x1d) !== -1) /* telnet escape */
-        child.kill('SIGTERM');
+
+    client.write(`*** Spawning ${cmd} ${args.map((arg) => !/\s/.test(arg) ? arg : '"' + arg.replace('"', '\\"') + '"').join(' ')}\r\n\r\n`);
+
+    child.on('data', function handleChildData(data) {
+      client.write(data);
     });
-    
+
+    inputStream.input.on('data', function handleClientData(data) {
+      child.write(data);
+    });
+
     return new Promise((resolve, reject) => {
       function finish(callback)
       {
-        inputStream.input.unpipe(child.stdin);
         client.logOff = initialLogOff;
         callback();
       }
@@ -156,9 +164,9 @@ async function shell(arg, client, options)
 
 const options = {
   callbackTelnet: (port, server, registry) => process.stderr.write(`telnetd for example/daemon listening on port ${port}\n`),
-  users: {
-    scott: 'tiger'
-  },
+//  users: {
+//    scott: 'tiger'
+//  },
 };
 
 const commands = {
