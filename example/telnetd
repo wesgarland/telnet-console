@@ -6,6 +6,8 @@
  *
  * @author      Wes Garland, wes@kingsds.network
  * @date        Jun 2021
+ *
+ * @note	requires node-pty
  */
 const os = require('os');
 const pty = require('node-pty');
