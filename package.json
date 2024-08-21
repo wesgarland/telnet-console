@@ -1,8 +1,8 @@
 {
   "name": "telnet-console",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Node.js Runtime Console",
-  "author": "Wes Garland <wes@kingsds.network>",
+  "author": "Wes Garland <wes@distributive.network>",
   "license": "MIT",
   "main": "telnet-console.js",
   "scripts": {
