@@ -1,4 +1,4 @@
-# Telnet Console for NodeJS
+# Telnet Console for Node.js
 
 A library for implementing runtime consoles in Node applications. This library allows you to 
 trivially build a telnet daemon for your application that can buffer/intercept console log
@@ -36,8 +36,10 @@ More info in `examples/` directory; use the source, Luke!
 | option          | default | details
 |:----------------|:--------|:-------------------------------------------------------------------------------------
 | port            | 2323    | port number to listen on; false to disable
-| callbackTelnet  |         | callback to invoke when telnet daemon has started; receives (port, server, registry).
+| callbackTelnet  |         | callback to invoke when telnet daemon has started; receives (port, server, registry)
+|                 |         | when startup successful; instance of Error otherwise
 | callbackStdio   |         | callback to invoke when stdio repl has started
+| delayStart      | false   | delay one tick before listening so that events listeners can be attached
 | histfile        |         | filename to REPL history into; understands ~, falsey to disable
 | stdio           | false   | if not false, start a REPL on stdio also
 | eval            |         | evaluator function to use with REPL. Use to get specific scope instead of global.
@@ -45,7 +47,7 @@ More info in `examples/` directory; use the source, Luke!
 | bufferLines     | 1000    | number of log lines to keep in memory for log command
 | users           |         | a function which returns true for a valid login/password pair, or an object whose keys are logins and values are passwords
 
-*Note:* all standard Node REPL options are also supported. See [NodeJS docs](https://nodejs.org/api/repl.html).
+*Note:* all standard Node REPL options are also supported. See [Node.js docs](https://nodejs.org/api/repl.html).
 
 #### replHelpers
 You can specify zero or more "helpers" to add custom commands to your server.  Each helper object can implement any
@@ -78,6 +80,8 @@ send \r\n instead of \n, and all output must end with \r\n to avoid corrupting t
 * **stat** - show os-level statitics about running process
 * **raise** - send a signal to this process
 * **flush** - flush a module from the require cache (potentially very dangerous!!!)
+* **timer** - run other commands on an interval, list intervals, and stop them
+* **print** - evaluate an expression and print the result on the connected console (use with timer)
 
 ### Debugging Tips
 #### keep
