@@ -40,6 +40,6 @@
     "telnet": "git+https://github.com/TooTallNate/node-telnet.git#780340617e1f223de384cdfcb7cecf0a1a6f1159"
   },
   "peerDependencies": {
-    "node-pty": "^0.10.1"
+    "node-pty": "^1.0.0"
   }
 }
