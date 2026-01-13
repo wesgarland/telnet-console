@@ -1,6 +1,6 @@
 {
   "name": "telnet-console",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Node.js Telnet Console",
   "author": "Wes Garland <wes@distributive.network>",
   "license": "MIT",
